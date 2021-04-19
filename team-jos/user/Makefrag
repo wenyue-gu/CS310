@@ -1,0 +1,19 @@
+OBJDIRS += user
+
+USERLIBS += jos
+
+USER_CFLAGS := $(CFLAGS) -DJOS_USER -gstabs
+
+# Linker flags for JOS user programs
+ULDFLAGS := -T user/user.ld
+
+
+$(OBJDIR)/user/%.o: user/%.c $(INC_HEADERS)
+	@mkdir -p $(@D)
+	$(CC) -nostdinc $(USER_CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/user/%: $(OBJDIR)/user/%.o $(USERLIBS:%=$(OBJDIR)/lib/lib%.a) user/user.ld
+	$(LD) -o $@ $(ULDFLAGS) $(LDFLAGS) -nostdlib $@.o -L$(OBJDIR)/lib $(USERLIBS:%=-l%) $(GCC_LIB)
+	$(OBJDUMP) -S $@ > $@.asm
+	$(NM) -n $@ > $@.sym
+

@@ -1,0 +1,26 @@
+OBJDIRS += lib
+
+LIB_SRCFILES :=		lib/console.c \
+			lib/exit.c \
+			lib/printf.c \
+			lib/printfmt.c \
+			lib/readline.c \
+			lib/string.c \
+			lib/syscall.c
+
+
+
+
+LIB_OBJFILES := $(patsubst lib/%.c, $(OBJDIR)/lib/%.o, $(LIB_SRCFILES))
+LIB_OBJFILES := $(patsubst lib/%.S, $(OBJDIR)/lib/%.o, $(LIB_OBJFILES))
+
+$(OBJDIR)/lib/%.o: lib/%.c $(INC_HEADERS)
+	@mkdir -p $(@D)
+	$(CC) -nostdinc $(USER_CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/lib/%.o: lib/%.S $(INC_HEADERS)
+	@mkdir -p $(@D)
+	$(CC) -nostdinc $(USER_CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/lib/libjos.a: $(LIB_OBJFILES)
+	$(AR) r $@ $(LIB_OBJFILES)
